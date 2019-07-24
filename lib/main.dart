@@ -5,6 +5,9 @@ import 'package:http/http.dart';
 import 'FilmResponse.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+const testGray = Color(0xFFECEFF1);
+const testGray1 = Color(0xFFCFD8DC);
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -17,8 +20,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-//      title: "fmdb",
-//      color: Colors.blueAccent,
+//      title: "FMdb",
+//      color: Colors.amberAccent,
       home: HomeScreen(),
       routes: {FilmData.filmDataRoute: (context) => FilmData()},
     );
@@ -31,7 +34,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Results> filmsList = List();
+//  List<Results> filmsList = List();
 
   int voteCount;
   var voteAverage;
@@ -43,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String overview;
   String releaseDate;
 
+  var results;
+
   Future<Response> fetchFilm() async {
     final response = await get(
         "https://api.themoviedb.org/3/movie/popular?api_key=d032214048c9ca94d788dcf68434f385");
@@ -51,105 +56,101 @@ class _HomeScreenState extends State<HomeScreen> {
     var filmResponse = Films.fromJson(parseJson);
 
     setState(() {
-      for (int i = 0; i < 20; i++) {
-        voteCount = filmResponse.results[i].voteCount;
-        voteAverage = filmResponse.results[i].voteAverage;
-        title = filmResponse.results[i].title;
-        popularity = filmResponse.results[i].popularity;
-        posterPath =
-            "http://image.tmdb.org/t/p/w500/${filmResponse.results[i].posterPath}";
-        backdropPath =
-            "http://image.tmdb.org/t/p/w500/${filmResponse.results[i].backdropPath}";
-        originalLanguage = filmResponse.results[i].originalLanguage;
-        releaseDate = filmResponse.results[i].releaseDate;
-        overview = filmResponse.results[i].overview;
-
-        Results film = Results(
-          posterPath: this.posterPath,
-          title: this.title,
-          backdropPath: this.backdropPath,
-          originalLanguage: this.originalLanguage,
-          overview: this.overview,
-          voteAverage: this.voteAverage,
-          voteCount: this.voteCount,
-          popularity: this.popularity,
-          releaseDate: this.releaseDate,
-        );
-        filmsList.add(film);
-      }
+      results = filmResponse.results;
     });
   }
 
-//  @override
-//  void initState() {
-//    super.initState();
-//
-//
-//  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    fetchFilm();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("First screen"),
-        backgroundColor: Colors.white,
-        leading: Icon(
-          (Icons.video_library),
+    fetchFilm(); //call movies fetch function to get data from API
+
+    if (results.length == null) {
+      return Scaffold(
+        body: Center(
+          child: Container(
+            color: Colors.amber,
+            child: Text(
+              "FMdb",
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+            ),
+          ),
         ),
-      ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 10 / 16,
-        children: List.generate(
-          filmsList.length,
-          (index) {
-            return Container(
-              padding: EdgeInsets.all(5.0),
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    FilmData.filmDataRoute,
-                    arguments: Results(
-                      posterPath: filmsList[index].posterPath,
-                      title: filmsList[index].title,
-                      backdropPath: filmsList[index].backdropPath,
-                      originalLanguage: filmsList[index].originalLanguage,
-                      overview: filmsList[index].overview,
-                      voteAverage: filmsList[index].voteAverage,
-                      voteCount: filmsList[index].voteCount,
-                      popularity: filmsList[index].popularity,
-                      releaseDate: filmsList[index].releaseDate,
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Box Office",
+            style: TextStyle(color: Colors.black),
+          ),
+          leading: Icon(
+            (Icons.video_library),
+            color: Colors.black,
+          ),
+          backgroundColor: Color.fromARGB(500, 255, 191, 0),
+        ),
+        body: GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 10 / 15,
+          children: List.generate(
+            results.length,
+            (index) {
+              return Container(
+                child: Card(
+                  child: FlatButton(
+                    onPressed: () {
+                      Film film = Film();
+                      film.originalLanguage = results[index].originalLanguage;
+                      film.posterPath = results[index].posterPath;
+                      film.title = results[index].title;
+                      film.backdropPath = results[index].backdropPath;
+                      film.overview = results[index].overview;
+                      film.voteAverage = results[index].voteAverage;
+                      film.voteCount = results[index].voteCount;
+                      film.popularity = results[index].popularity;
+                      film.releaseDate = results[index].releaseDate;
+
+                      Navigator.pushNamed(
+                        context,
+                        FilmData.filmDataRoute,
+                        arguments: film,
+                      );
+                      print("Film: ${results[index].title}");
+                    },
+                    child: Container(
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "${results[index].title}",
+                              textAlign: TextAlign.center,
+                              textDirection: TextDirection.ltr,
+                              overflow: TextOverflow.fade,
+                              maxLines: 1,
+                            ),
+                          ),
+                          Image.network(
+                            'http://image.tmdb.org/t/p/w500${results[index].posterPath}',
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blueGrey),
-                    borderRadius: BorderRadius.all(Radius.circular(2.0)),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "${filmsList[index].title}",
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Image.network(
-                        filmsList[index].posterPath,
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-    );
+        backgroundColor: Color(0xFFECEFF1),
+      );
+    }
   }
 }
 
@@ -163,76 +164,148 @@ class FilmData extends StatefulWidget {
 class _FilmDataState extends State<FilmData> {
   @override
   Widget build(BuildContext context) {
-    Results results = ModalRoute.of(context).settings.arguments;
-//
-//    Widget testBGCarousel = new Container(
-//      child: new CarouselSlider(
-//        items: <Widget>[
-//          Image.network(results.posterPath),
-//          Image.network(results.backdropPath),
-//        ]
-//            .map((bgImg) =>
-//                new Image(width: 1500.0, height: 1500.0, fit: BoxFit.cover))
-//            .toList(),
-//        autoPlayAnimationDuration: Duration(seconds: 2),
-//      ),
-//    );
+    Film film = ModalRoute.of(context).settings.arguments;
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("${results.title}"),
-          backgroundColor: Colors.white,
-          leading: Icon((Icons.movie)),
+      appBar: AppBar(
+        title: Text(
+          film.title,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
         ),
-        body: ListView(
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                Text(
-                  "${results.title}",
-                  style: TextStyle(fontSize: 22.0),
-                ),
-                FlatButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.network(results.posterPath)),
-                Text(
-                  "Popularity: ${results.popularity}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Release date: ${results.releaseDate}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Votes: ${results.voteCount}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Rate: ${results.voteAverage}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Overview: ${results.overview}",
-                  textDirection: TextDirection.ltr,
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(500, 255, 191, 0),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.favorite_border,
+                color: Colors.black,
+              ),
+              onPressed: () {}),
+          IconButton(
+            icon: Icon(
+              Icons.movie,
+              color: Color.fromARGB(255, 0, 0, 0),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+      body: ListView(
+        children: ListTile.divideTiles(
+          context: context,
+          tiles: [
+            ListTile(
+//              leading: Icon(Icons.title),
+              title: Text(
+                "${film.title}",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+//              leading: Text("Title",style: ,),
+            ),
+            ListTile(
+              title: Image.network(
+                'http://image.tmdb.org/t/p/w500${film.backdropPath}',
+              ),
+            ),
+            ListTile(
+              title: Text("Overview"),
+              subtitle: Text(film.overview,
                   textAlign: TextAlign.justify,
-                ),
-                Text(
-                  "Language: ${results.originalLanguage}",
-                  textDirection: TextDirection.ltr,
-                ),
-              ],
+                  style: TextStyle(color: Colors.black)),
+            ),
+            ListTile(
+              leading: Text("Vote average: ${film.voteAverage}"),
+            ),
+            ListTile(
+              leading: Text("Popularity: ${film.popularity}"),
+              trailing: Text("Votes:  ${film.voteCount}"),
+            ),
+            ListTile(
+              leading: Text("Released: ${film.releaseDate}"),
             ),
           ],
-        ));
+        ).toList(),
+      ),
+      backgroundColor: Color(0xFFECEFF1),
+    );
   }
+}
+
+class Film {
+  int voteCount;
+  var voteAverage;
+  String title;
+  double popularity;
+  String posterPath;
+  String originalLanguage;
+  String backdropPath;
+  String overview;
+  String releaseDate;
 }
 //
 //createGridView(BuildContext context, List<Results> filmsList) {
 //  return
 //}
+
+/*
+*
+*
+* ListView(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Column(
+              children: <Widget>[
+//              Text(
+//                "${film.title}",
+//                style: TextStyle(fontSize: 22.0),
+//              ),
+
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Image.network(
+                    'http://image.tmdb.org/t/p/w500${film.posterPath}',
+                  ),
+                ),
+                Text(
+                  "Popularity: ${film.popularity}",
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  "Release date: ${film.releaseDate}",
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  "Votes: ${film.voteCount}",
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  "Rate: ${film.voteAverage}",
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  "Overview: ${film.overview}",
+                  textDirection: TextDirection.ltr,
+                  textAlign: TextAlign.justify,
+                ),
+                Text(
+                  "Language: ${film.originalLanguage}",
+                  textDirection: TextDirection.ltr,
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
+
+
+      */
