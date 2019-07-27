@@ -62,6 +62,9 @@ class Results {
       this.overview,
       this.releaseDate});
 
+  Results.withInfo(this.id, this.title, this.overview, this.popularity,
+      this.voteAverage, this.releaseDate);
+
   Results.fromJson(Map<String, dynamic> json) {
     voteCount = json['vote_count'];
     id = json['id'];
@@ -96,5 +99,30 @@ class Results {
     data['overview'] = this.overview;
     data['release_date'] = this.releaseDate;
     return data;
+  }
+
+  Results.ConvertFromMap(Map<String, dynamic> map) {
+    id = map['id'];
+    title = map['title'];
+    overview = map['overview'];
+    releaseDate = map['releaseDate'];
+    voteAverage = map['voteAverage'];
+    popularity = map['popularity'];
+  }
+
+  Map<String, dynamic> ConvertToMap() {
+    var map = Map<String, dynamic>();
+    map['id'] = id;
+    map['title'] = title;
+    map['overview'] = overview;
+    map['releaseDate'] = releaseDate;
+    map['voteAverage'] = voteAverage;
+    map['popularity'] = popularity;
+    return map;
+  }
+
+  @override
+  String toString() {
+    return 'Film{id: $id, Name: $title}';
   }
 }

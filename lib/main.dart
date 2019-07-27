@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'FilmResponse.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:toast/toast.dart';
+import 'MyHelper.dart';
 
 const testGray = Color(0xFFECEFF1);
 const testGray1 = Color(0xFFCFD8DC);
+IconData favoriteIcon;
+
+var helper = MyHelper();
 
 void main() => runApp(MyApp());
 
@@ -23,7 +28,10 @@ class _MyAppState extends State<MyApp> {
 //      title: "FMdb",
 //      color: Colors.amberAccent,
       home: HomeScreen(),
-      routes: {FilmData.filmDataRoute: (context) => FilmData()},
+      routes: {
+        FilmData.filmDataRoute: (context) => FilmData(),
+        FavoriteScreen.favoriteRoute: (context) => FavoriteScreen(),
+      },
     );
   }
 }
@@ -34,7 +42,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-//  List<Results> filmsList = List();
+//
+//  var helper = MyHelper();
+//  List<Film> films = List();
 
   int voteCount;
   var voteAverage;
@@ -105,7 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Card(
                   child: FlatButton(
                     onPressed: () {
-                      Film film = Film();
+                      Results film = Results();
+                      film.id = results[index].id;
                       film.originalLanguage = results[index].originalLanguage;
                       film.posterPath = results[index].posterPath;
                       film.title = results[index].title;
@@ -152,6 +163,13 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
+  void insertFilm(BuildContext context, Results film) {
+    var f = Results.withInfo(film.id, film.title, film.overview,
+        film.popularity, film.voteAverage, film.releaseDate);
+    helper.insertIntoTable(f);
+    Toast.show("Saved", context);
+  }
 }
 
 class FilmData extends StatefulWidget {
@@ -164,8 +182,7 @@ class FilmData extends StatefulWidget {
 class _FilmDataState extends State<FilmData> {
   @override
   Widget build(BuildContext context) {
-    Film film = ModalRoute.of(context).settings.arguments;
-
+    Results film = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -176,18 +193,33 @@ class _FilmDataState extends State<FilmData> {
         backgroundColor: Color.fromARGB(500, 255, 191, 0),
         actions: <Widget>[
           IconButton(
-              icon: Icon(
-                Icons.favorite_border,
-                color: Colors.black,
-              ),
-              onPressed: () {}),
+            icon: Icon(
+              favoriteIcon,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              setState(() {
+                if (favoriteIcon == Icons.favorite_border) {
+                  insertFilm(context, film);
+                  favoriteIcon = Icons.favorite;
+                } else {
+                  helper.deleteFilm(film.id);
+                  favoriteIcon = Icons.favorite_border;
+                }
+              });
+            },
+          ),
           IconButton(
             icon: Icon(
               Icons.movie,
               color: Color.fromARGB(255, 0, 0, 0),
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushNamed(
+                context,
+                FavoriteScreen.favoriteRoute,
+                arguments: film,
+              );
             },
           ),
         ],
@@ -232,80 +264,96 @@ class _FilmDataState extends State<FilmData> {
       backgroundColor: Color(0xFFECEFF1),
     );
   }
+
+  void insertFilm(BuildContext context, Results film) {
+    var f = Results.withInfo(film.id, film.title, film.overview,
+        film.popularity, film.voteAverage, film.releaseDate);
+    helper.insertIntoTable(f);
+    Toast.show("Saved", context);
+  }
 }
 
-class Film {
-  int voteCount;
-  var voteAverage;
-  String title;
-  double popularity;
-  String posterPath;
-  String originalLanguage;
-  String backdropPath;
-  String overview;
-  String releaseDate;
+class FavoriteScreen extends StatefulWidget {
+  static final favoriteRoute = '/third';
+
+  @override
+  _FavoriteScreenState createState() => _FavoriteScreenState();
 }
-//
-//createGridView(BuildContext context, List<Results> filmsList) {
-//  return
-//}
 
-/*
-*
-*
-* ListView(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Column(
-              children: <Widget>[
-//              Text(
-//                "${film.title}",
-//                style: TextStyle(fontSize: 22.0),
-//              ),
+class _FavoriteScreenState extends State<FavoriteScreen> {
+  List<Results> films = List();
 
-                FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Image.network(
-                    'http://image.tmdb.org/t/p/w500${film.posterPath}',
-                  ),
-                ),
-                Text(
-                  "Popularity: ${film.popularity}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Release date: ${film.releaseDate}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Votes: ${film.voteCount}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Rate: ${film.voteAverage}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.left,
-                ),
-                Text(
-                  "Overview: ${film.overview}",
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.justify,
-                ),
-                Text(
-                  "Language: ${film.originalLanguage}",
-                  textDirection: TextDirection.ltr,
-                ),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    select(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Favorites",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+        ),
+        centerTitle: false,
+        backgroundColor: Color.fromARGB(500, 255, 191, 0),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.delete,
+              color: Colors.black,
             ),
+            onPressed: () {
+              setState(() {
+                helper.deleteAll();
+              });
+            },
           ),
         ],
-      )
+      ),
+      body: Container(
+        height: 200,
+        child: ListView.builder(
+          itemCount: films.length,
+          itemBuilder: (BuildContext Context, int index) {
+            return Text(films[index].toString());
+          },
+        ),
+      ),
+      backgroundColor: Color(0xFFECEFF1),
+    );
+  }
 
+//  Future select(BuildContext context) async {
+//    var list = await helper.getFilms();
+//    Toast.show(list.toString(), context);
+//  }
 
-      */
+  Future<List<Results>> select(BuildContext context) async {
+    helper.getFilms().then((filmsList) {
+      setState(() {
+        films = filmsList;
+      });
+    });
+    Toast.show(films.toString(), context);
+  }
+}
+//  void _showDialog() {
+//    // flutter defined function
+//    showDialog(
+//      context: context,
+//      builder: (BuildContext context) {
+//        // return object of type Dialog
+//        return AlertDialog(
+//          title: new Text("Alert Dialog title"),
+//          content: new Text("Alert Dialog body"),
+//          actions: <Widget>[
+//            // usually buttons at the bottom of the dialog
+//            new FlatButton(
+//              child: new Text("Close"),
+//              onPressed: () {
+//                Navigator.of(context).pop();
+//              },
+//            ),
+//          ],
+//        );
+//      },
+//    );
+//  }
