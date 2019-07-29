@@ -24,12 +24,17 @@ class MyHelper {
   //2- define constants
   static String db_name = 'films.db';
   static String table_name = 'Film';
+
   static String col_id = 'id';
   static String col_title = 'title';
+  static String col_voteCount = 'voteCount';
+  static String col_isStored = 'isStored';
   static String col_overview = 'overview';
   static String col_popularity = 'popularity';
+  static String col_posterPath = 'posterPath';
   static String col_releaseDate = 'releaseDate';
   static String col_voteAverage = 'voteAverage';
+  static String col_backdropPath = 'backdropPath';
 
   //3- create object from datbase
   Future<Database> get database async {
@@ -42,7 +47,7 @@ class MyHelper {
   Future<Database> intializeDb() async {
     Directory dir = await getApplicationDocumentsDirectory();
     var path = join(dir.path, db_name);
-    return openDatabase(path, version: 6, onCreate: createTable);
+    return openDatabase(path, version: 1, onCreate: createTable);
   }
 
 //create table
@@ -54,8 +59,12 @@ class MyHelper {
     $col_title text,
     $col_overview text,
     $col_popularity real,
+    $col_voteAverage real,
     $col_releaseDate text,
-    $col_voteAverage real)
+    $col_voteCount integer,
+    $col_posterPath text,
+    $col_backdropPath text
+    )
     ''';
     db.execute(sql);
   }
@@ -100,8 +109,8 @@ class MyHelper {
     db.delete(table_name, where: "$col_id = ?", whereArgs: [id]);
   }
 
-  deleteAll() async {
+  Future<int> deleteAll() async {
     var db = await database;
-    db.rawDelete("Delete * from $table_name");
+    return await db.rawDelete('DELETE FROM $table_name');
   }
 }

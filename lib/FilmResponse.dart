@@ -62,8 +62,17 @@ class Results {
       this.overview,
       this.releaseDate});
 
-  Results.withInfo(this.id, this.title, this.overview, this.popularity,
-      this.voteAverage, this.releaseDate);
+  Results.withInfo(
+    this.id,
+    this.title,
+    this.overview,
+    this.popularity,
+    this.voteAverage,
+    this.releaseDate,
+    this.voteCount,
+    this.posterPath,
+    this.backdropPath,
+  );
 
   Results.fromJson(Map<String, dynamic> json) {
     voteCount = json['vote_count'];
@@ -108,6 +117,9 @@ class Results {
     releaseDate = map['releaseDate'];
     voteAverage = map['voteAverage'];
     popularity = map['popularity'];
+    voteCount = map['voteCount'];
+    posterPath = map['posterPath'];
+    backdropPath = map['backdropPath'];
   }
 
   Map<String, dynamic> ConvertToMap() {
@@ -118,6 +130,9 @@ class Results {
     map['releaseDate'] = releaseDate;
     map['voteAverage'] = voteAverage;
     map['popularity'] = popularity;
+    map['voteCount'] = voteCount;
+    map['posterPath'] = posterPath;
+    map['backdropPath'] = backdropPath;
     return map;
   }
 

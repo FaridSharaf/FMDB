@@ -9,9 +9,10 @@ import 'MyHelper.dart';
 
 const testGray = Color(0xFFECEFF1);
 const testGray1 = Color(0xFFCFD8DC);
-IconData favoriteIcon;
+IconData favoriteIcon = Icons.favorite_border;
 
 var helper = MyHelper();
+var filmsCount;
 
 void main() => runApp(MyApp());
 
@@ -67,20 +68,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       results = filmResponse.results;
+      filmsCount = filmResponse.results.length;
     });
   }
 
   @override
   void initState() {
     // TODO: implement initState
+    fetchFilm(); //call movies fetch function to get data from API
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    fetchFilm(); //call movies fetch function to get data from API
-
-    if (results.length == null) {
+    if (filmsCount == null) {
       return Scaffold(
         body: Center(
           child: Container(
@@ -91,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+        backgroundColor: Color(0xFFECEFF1),
       );
     } else {
       return Scaffold(
@@ -165,10 +167,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void insertFilm(BuildContext context, Results film) {
-    var f = Results.withInfo(film.id, film.title, film.overview,
-        film.popularity, film.voteAverage, film.releaseDate);
+    var f = Results.withInfo(
+      film.id,
+      film.title,
+      film.overview,
+      film.popularity,
+      film.voteAverage,
+      film.releaseDate,
+      film.voteCount,
+      film.posterPath,
+      film.backdropPath,
+    );
     helper.insertIntoTable(f);
-    Toast.show("Saved", context);
+    Toast.show("Saved!", context);
   }
 }
 
@@ -205,6 +216,7 @@ class _FilmDataState extends State<FilmData> {
                 } else {
                   helper.deleteFilm(film.id);
                   favoriteIcon = Icons.favorite_border;
+                  Toast.show("Removed!", context);
                 }
               });
             },
@@ -247,16 +259,34 @@ class _FilmDataState extends State<FilmData> {
               subtitle: Text(film.overview,
                   textAlign: TextAlign.justify,
                   style: TextStyle(color: Colors.black)),
+              leading: Icon(
+                Icons.title,
+                size: 20.0,
+              ),
             ),
             ListTile(
-              leading: Text("Vote average: ${film.voteAverage}"),
+              title: Text(
+                "Vote average: ${film.voteAverage}",
+              ),
+              leading: Icon(
+                Icons.confirmation_number,
+                size: 20.0,
+              ),
             ),
             ListTile(
-              leading: Text("Popularity: ${film.popularity}"),
+              title: Text("Popularity: ${film.popularity}"),
               trailing: Text("Votes:  ${film.voteCount}"),
+              leading: Icon(
+                Icons.thumbs_up_down,
+                size: 20.0,
+              ),
             ),
             ListTile(
-              leading: Text("Released: ${film.releaseDate}"),
+              title: Text("Released: ${film.releaseDate}"),
+              leading: Icon(
+                Icons.date_range,
+                size: 20.0,
+              ),
             ),
           ],
         ).toList(),
@@ -266,10 +296,19 @@ class _FilmDataState extends State<FilmData> {
   }
 
   void insertFilm(BuildContext context, Results film) {
-    var f = Results.withInfo(film.id, film.title, film.overview,
-        film.popularity, film.voteAverage, film.releaseDate);
+    var f = Results.withInfo(
+      film.id,
+      film.title,
+      film.overview,
+      film.popularity,
+      film.voteAverage,
+      film.releaseDate,
+      film.voteCount,
+      film.posterPath,
+      film.backdropPath,
+    );
     helper.insertIntoTable(f);
-    Toast.show("Saved", context);
+    Toast.show("Saved!", context);
   }
 }
 
@@ -285,6 +324,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Results films2 = ModalRoute.of(context).settings.arguments;
     select(context);
     return Scaffold(
       appBar: AppBar(
@@ -303,17 +343,51 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             onPressed: () {
               setState(() {
                 helper.deleteAll();
+                Toast.show("Cleared!", context);
               });
             },
           ),
         ],
       ),
-      body: Container(
-        height: 200,
-        child: ListView.builder(
-          itemCount: films.length,
-          itemBuilder: (BuildContext Context, int index) {
-            return Text(films[index].toString());
+      body: GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 10 / 15,
+        children: List.generate(
+          films.length,
+          (index) {
+            return Container(
+              child: Card(
+                child: FlatButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      FilmData.filmDataRoute,
+                      arguments: films[index],
+                    );
+                    print("Film: ${films[index].title}");
+                  },
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "${films[index].title}",
+                            textAlign: TextAlign.center,
+                            textDirection: TextDirection.ltr,
+                            overflow: TextOverflow.fade,
+                            maxLines: 1,
+                          ),
+                        ),
+                        Image.network(
+                          'http://image.tmdb.org/t/p/w500${films[index].posterPath}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -326,13 +400,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 //    Toast.show(list.toString(), context);
 //  }
 
-  Future<List<Results>> select(BuildContext context) async {
+  Future select(BuildContext context) async {
     helper.getFilms().then((filmsList) {
       setState(() {
         films = filmsList;
       });
     });
-    Toast.show(films.toString(), context);
+//    Toast.show(films.toString(), context);
   }
 }
 //  void _showDialog() {
