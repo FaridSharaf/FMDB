@@ -342,8 +342,41 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             onPressed: () {
               setState(() {
-                helper.deleteAll();
-                Toast.show("Cleared!", context);
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Clear favorites?"),
+                        content: Text("This will clear your favorite list."),
+                        actions: <Widget>[
+                          ButtonBar(
+                            children: <Widget>[
+                              FlatButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "CANCEL",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                              ),
+                              FlatButton(
+                                onPressed: () {
+                                  helper.deleteAll();
+                                  Toast.show("Cleared!", context);
+                                  favoriteIcon = Icons.favorite_border;
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  "ACCEPT",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      );
+                    });
               });
             },
           ),
@@ -409,25 +442,3 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 //    Toast.show(films.toString(), context);
   }
 }
-//  void _showDialog() {
-//    // flutter defined function
-//    showDialog(
-//      context: context,
-//      builder: (BuildContext context) {
-//        // return object of type Dialog
-//        return AlertDialog(
-//          title: new Text("Alert Dialog title"),
-//          content: new Text("Alert Dialog body"),
-//          actions: <Widget>[
-//            // usually buttons at the bottom of the dialog
-//            new FlatButton(
-//              child: new Text("Close"),
-//              onPressed: () {
-//                Navigator.of(context).pop();
-//              },
-//            ),
-//          ],
-//        );
-//      },
-//    );
-//  }
