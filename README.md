@@ -3,13 +3,14 @@ Android App made with flutter, dart and SQLite.
 The project was the graduation project from ITI Flutter summer training.
 
 ## App Pages
-- Splash
-    If there is no internet connection, this screen will be displayed.
+- Splash  
+    If there is no internet connection, this screen will be displayed.  
     Made with a container and connection check statement.
-- Home 
+- Home   
     The current trending movies.
-- Film 
+- Film  
     Display the film Data in a list view.
-- Favourite
+- Favourite  
     If user clicked on the heart
     
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Splash.png" width="180" height="308">
