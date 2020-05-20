@@ -1,5 +1,6 @@
 # FMDB
-A small app takes data from api and parse it to show in scroll-able gridview 
+Android App made with flutter, dart and SQLite. 
+The project was the graduation project from ITI summer training 
 
 
 It was initialized first with a bug using listview and gridview, leading to infinite scroll and repeating films.
