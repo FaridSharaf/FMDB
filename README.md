@@ -14,5 +14,5 @@ The project was the graduation project from ITI Flutter summer training.
     If user clicked on the heart
     
 <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Splash.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Home.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Film1.png" width="240" height="410"> 
-<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Film2.png" width="240" height="410">  <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/EmptyFav.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/FavPage.png" width="240" height="410"> 
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/EmptyFav.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Film2.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/FavPage.png" width="240" height="410"> 
 <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/AlertDialogue.png" width="240" height="410"> <img src="https://github.com/FaridSharaf/FMDB/blob/master/images/ClearedFav.png" width="240" height="410"> 
