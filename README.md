@@ -13,4 +13,7 @@ The project was the graduation project from ITI Flutter summer training.
 - Favourite  
     If user clicked on the heart
     
-<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Splash.png" width="180" height="308">
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Splash.png" width="240" height="410"> 
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Home.png" width="240" height="410"> 
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/Film1.png" width="240" height="410"> 
+<img src="https://github.com/FaridSharaf/FMDB/blob/master/images/EmptyFav.png" width="240" height="410"> 
